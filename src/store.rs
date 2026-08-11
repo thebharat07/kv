@@ -2,7 +2,7 @@ use std::collections::BTreeMap;
 use std::hash::{DefaultHasher, Hash, Hasher};
 use std::sync::{Arc, RwLock};
 
-// const NUM_SHARDS: usize = 16;
+const NUM_SHARDS: u64 = 16;
 
 #[derive(Clone)]
 pub struct ShardedStore {
@@ -11,7 +11,7 @@ pub struct ShardedStore {
 
 impl ShardedStore {
     pub fn new() -> Self {
-        let map_shards: Vec<Arc<RwLock<BTreeMap<String, String>>>> = (0..16)
+        let map_shards: Vec<Arc<RwLock<BTreeMap<String, String>>>> = (0..NUM_SHARDS)
             .map(|_| Arc::new(RwLock::new(BTreeMap::new())))
             .collect();
 
@@ -27,7 +27,7 @@ impl ShardedStore {
 
         let hash_of_key = hash_function.finish();
 
-        (hash_of_key % 16) as usize
+        (hash_of_key % NUM_SHARDS) as usize
     }
 
     pub fn get(&self, key: &str) -> Option<String> {
